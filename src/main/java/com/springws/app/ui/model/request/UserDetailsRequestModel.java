@@ -2,17 +2,17 @@ package com.springws.app.ui.model.request;
 
 public class UserDetailsRequestModel {
 
-	private String firstname;
+	private String firstName;
 	private String lastName;
 	private String email;
 	private String password;
 
-	public String getFirstname() {
-		return firstname;
+	public String getFirstName() {
+		return firstName;
 	}
 
-	public void setFirstname(String firstname) {
-		this.firstname = firstname;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
 
 	public String getLastName() {
