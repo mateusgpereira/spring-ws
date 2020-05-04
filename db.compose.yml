@@ -1,0 +1,24 @@
+# Use root/docker as user/password credentials
+version: '3.1'
+
+services:
+
+  mysql:
+    image: mysql
+    container_name: mysqldb
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=docker
+      - MYSQL_ROOT_HOST=%
+    ports:
+      - 3306:3306
+
+  myadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: myadmin
+    environment:
+      - PMA_ARBITRARY=1
+    restart: always
+    ports:
+      - 8089:80
