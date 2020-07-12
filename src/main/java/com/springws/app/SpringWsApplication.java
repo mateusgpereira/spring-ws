@@ -21,5 +21,4 @@ public class SpringWsApplication {
 	public SpringApplicationContext springApplicationContext() {
 		return new SpringApplicationContext();
 	}
-
 }
