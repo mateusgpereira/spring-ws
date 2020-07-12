@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.springws.app.UserEntity;
+import com.springws.app.entities.UserEntity;
 import com.springws.app.repository.UserRepository;
 import com.springws.app.service.UserService;
 import com.springws.app.shared.Utils;
@@ -55,5 +55,16 @@ public class UserServiceImpl implements UserService {
 		}
 		
 		return new User(user.getEmail(), user.getEncryptedPassword(), new ArrayList<>());
+	}
+
+	@Override
+	public UserDto getUser(String email) throws UsernameNotFoundException {
+		UserEntity entity = repository.findByEmail(email);
+		if (entity == null) {
+			throw new UsernameNotFoundException(email);
+		}
+		UserDto userDto = new UserDto();
+		BeanUtils.copyProperties(entity, userDto);
+		return userDto;
 	}
 }

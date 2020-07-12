@@ -1,4 +1,4 @@
-package com.springws.app;
+package com.springws.app.entities;
 
 import java.io.Serializable;
 
