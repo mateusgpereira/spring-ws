@@ -11,10 +11,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.springws.app.entities.UserEntity;
+import com.springws.app.exceptions.UserServiceException;
 import com.springws.app.repository.UserRepository;
 import com.springws.app.service.UserService;
 import com.springws.app.shared.Utils;
 import com.springws.app.shared.dto.UserDto;
+import com.springws.app.ui.model.response.ErrorMessages;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -53,7 +55,7 @@ public class UserServiceImpl implements UserService {
 		if (user == null) {
 			throw new UsernameNotFoundException(email);
 		}
-		
+
 		return new User(user.getEmail(), user.getEncryptedPassword(), new ArrayList<>());
 	}
 
@@ -72,12 +74,41 @@ public class UserServiceImpl implements UserService {
 	public UserDto getUserByUserId(String userId) throws UsernameNotFoundException {
 		UserDto userDto = new UserDto();
 		UserEntity user = repository.findByUserId(userId);
-		
+
 		if (user == null) {
 			throw new UsernameNotFoundException(userId);
 		}
-		
+
 		BeanUtils.copyProperties(user, userDto);
 		return userDto;
+	}
+
+	@Override
+	public UserDto updateUser(String userId, UserDto user) {
+		UserEntity entity = repository.findByUserId(userId);
+
+		if (entity == null) {
+			throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		}
+
+		entity.setFirstName(user.getFirstName());
+		entity.setLastName(user.getLastName());
+
+		entity = repository.save(entity);
+		UserDto userDto = new UserDto();
+		BeanUtils.copyProperties(entity, userDto);
+
+		return userDto;
+	}
+
+	@Override
+	public void deleteUser(String userId) {
+		UserEntity entity = repository.findByUserId(userId);
+
+		if (entity == null) {
+			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		}
+
+		repository.delete(entity);
 	}
 }
