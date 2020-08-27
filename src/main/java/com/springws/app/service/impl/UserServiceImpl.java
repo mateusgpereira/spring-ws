@@ -1,9 +1,13 @@
 package com.springws.app.service.impl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,9 +37,10 @@ public class UserServiceImpl implements UserService {
 	public UserDto createUser(UserDto user) {
 
 		UserEntity userExists = repository.findByEmail(user.getEmail());
-		if (userExists != null)
+		if (userExists != null) {
 			throw new RuntimeException("User already exists");
-
+		}
+		
 		UserEntity entity = new UserEntity();
 		BeanUtils.copyProperties(user, entity);
 
@@ -110,5 +115,22 @@ public class UserServiceImpl implements UserService {
 		}
 
 		repository.delete(entity);
+	}
+
+	@Override
+	public List<UserDto> list(int page, int limit) {
+		List<UserDto> returnValue = new ArrayList<UserDto>();
+		
+		Pageable pageRequest = PageRequest.of(page, limit);
+		Page<UserEntity> userPage = repository.findAll(pageRequest);
+		List<UserEntity> users = userPage.getContent();
+		
+		for (UserEntity entity : users) {
+			UserDto userDto = new UserDto();
+			BeanUtils.copyProperties(entity, userDto);
+			returnValue.add(userDto);
+		}
+		
+		return returnValue;
 	}
 }
