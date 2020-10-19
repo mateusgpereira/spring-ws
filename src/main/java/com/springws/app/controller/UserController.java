@@ -3,6 +3,7 @@ package com.springws.app.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -51,8 +52,8 @@ public class UserController {
 
 		UserRest returnValue = new UserRest();
 
-		UserDto userDto = new UserDto();
-		BeanUtils.copyProperties(userDetails, userDto);
+		ModelMapper mapper = new ModelMapper();
+		UserDto userDto = mapper.map(userDetails, UserDto.class);
 
 		UserDto createdUser = userService.createUser(userDto);
 		BeanUtils.copyProperties(createdUser, returnValue);
