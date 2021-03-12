@@ -3,6 +3,7 @@ package com.springws.app.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import com.springws.app.exceptions.UserServiceException;
 import com.springws.app.repository.UserRepository;
 import com.springws.app.service.UserService;
 import com.springws.app.shared.Utils;
+import com.springws.app.shared.dto.AddressDto;
 import com.springws.app.shared.dto.UserDto;
 import com.springws.app.ui.model.response.ErrorMessages;
 
@@ -41,16 +43,22 @@ public class UserServiceImpl implements UserService {
 			throw new RuntimeException("User already exists");
 		}
 		
-		UserEntity entity = new UserEntity();
-		BeanUtils.copyProperties(user, entity);
+		for (int i = 0 ; i < user.getAddresses().size(); i++) {
+			AddressDto address = user.getAddresses().get(i);
+			address.setUserDetails(user);
+			address.setAddressId(utils.generateAddressId(30));
+			user.getAddresses().set(i, address);
+		}
+		
+		ModelMapper mapper = new ModelMapper();
+		UserEntity entity = mapper.map(user, UserEntity.class);
 
 		entity.setEncryptedPassword(bCrypt.encode(user.getPassword()));
 		entity.setUserId(utils.generateUserId(15));
 
 		UserEntity stored = repository.save(entity);
 
-		BeanUtils.copyProperties(stored, user);
-		return user;
+		return mapper.map(stored, UserDto.class);
 	}
 
 	@Override

@@ -2,10 +2,13 @@ package com.springws.app.ui.model.request;
 
 import java.util.List;
 
+import javax.validation.constraints.NotBlank;
+
 public class UserDetailsRequestModel {
 
 	private String firstName;
 	private String lastName;
+	@NotBlank(message = "Email is mandatory")
 	private String email;
 	private String password;
 	private List<AddressRequestModel> addresses;

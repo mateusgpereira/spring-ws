@@ -3,6 +3,8 @@ package com.springws.app.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +46,7 @@ public class UserController {
 	}
 
 	@PostMapping
-	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
+	public UserRest createUser(@Valid @RequestBody UserDetailsRequestModel userDetails) throws Exception {
 
 		if (userDetails.getFirstName().isEmpty()) {
 			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELDS.getErrorMessage());
@@ -56,7 +58,7 @@ public class UserController {
 		UserDto userDto = mapper.map(userDetails, UserDto.class);
 
 		UserDto createdUser = userService.createUser(userDto);
-		BeanUtils.copyProperties(createdUser, returnValue);
+		returnValue = mapper.map(createdUser, UserRest.class);
 
 		return returnValue;
 	}
