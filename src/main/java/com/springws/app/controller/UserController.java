@@ -1,11 +1,13 @@
 package com.springws.app.controller;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -20,9 +22,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.springws.app.exceptions.UserServiceException;
+import com.springws.app.service.AddressService;
 import com.springws.app.service.UserService;
+import com.springws.app.shared.dto.AddressDto;
 import com.springws.app.shared.dto.UserDto;
 import com.springws.app.ui.model.request.UserDetailsRequestModel;
+import com.springws.app.ui.model.response.AddressRest;
 import com.springws.app.ui.model.response.ErrorMessages;
 import com.springws.app.ui.model.response.OperationName;
 import com.springws.app.ui.model.response.OperationResponse;
@@ -35,6 +40,9 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private AddressService addressService;
 
 	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public UserRest getUsers(@PathVariable String id) {
@@ -100,6 +108,19 @@ public class UserController {
 			returnValue.add(userRest);
 		}
 		
+		return returnValue;
+	}
+	
+	@GetMapping(path = "/{id}/addresses")
+	public List<AddressRest> getAddresses(@PathVariable String id){
+		List<AddressRest> returnValue = new ArrayList<>();
+		
+		List<AddressDto> addressesDto = addressService.getAddresses(id);
+		
+		if (addressesDto != null && !addressesDto.isEmpty()) {
+			Type listType = new TypeToken<List<AddressRest>>() {}.getType();
+			returnValue = new ModelMapper().map(addressesDto, listType);
+		}
 		return returnValue;
 	}
 }
