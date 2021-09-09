@@ -46,10 +46,9 @@ public class UserController {
 
 	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public UserRest getUsers(@PathVariable String id) {
-		UserRest user = new UserRest();
-
 		UserDto userDto = userService.getUserByUserId(id);
-		BeanUtils.copyProperties(userDto, user);
+		ModelMapper mapper = new ModelMapper();
+		UserRest user = mapper.map(userDto, UserRest.class);
 		return user;
 	}
 
@@ -73,13 +72,12 @@ public class UserController {
 
 	@PutMapping(path = "/{id}")
 	public UserRest updateUser(@PathVariable String id, @RequestBody UserDetailsRequestModel userDetails) {
-		UserRest user = new UserRest();
-		UserDto userDto = new UserDto();
+		ModelMapper modelMapper = new ModelMapper();
+		UserDto userDto = modelMapper.map(userDetails, UserDto.class);
 
-		BeanUtils.copyProperties(userDetails, userDto);
 		userDto = userService.updateUser(id, userDto);
 
-		BeanUtils.copyProperties(userDto, user);
+		UserRest user = modelMapper.map(userDto, UserRest.class);
 		return user;
 	}
 
@@ -101,10 +99,10 @@ public class UserController {
 		List<UserRest> returnValue = new ArrayList<UserRest>();
 		
 		List<UserDto> users = userService.list(page, limit);
+		ModelMapper mapper = new ModelMapper();
 		
 		for (UserDto user : users) {
-			UserRest userRest = new UserRest();
-			BeanUtils.copyProperties(user, userRest);
+			UserRest userRest = mapper.map(user, UserRest.class);
 			returnValue.add(userRest);
 		}
 		
