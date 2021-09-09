@@ -18,7 +18,7 @@ Access the project folder and run the containered mysql database:
 
 ```shell
 $ cd spring-ws
-$ docker-compose -f db.compose.yml up -d
+$ docker-compose up -d
 ```
 
 - Run the app inside Spring Tool Suite
