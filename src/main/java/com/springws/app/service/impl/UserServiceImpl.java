@@ -38,8 +38,7 @@ public class UserServiceImpl implements UserService {
 
 	public UserDto createUser(UserDto user) {
 
-		UserEntity userExists = repository.findByEmail(user.getEmail());
-		if (userExists != null) {
+		if (repository.findByEmail(user.getEmail()) != null) {
 			throw new RuntimeException("User already exists");
 		}
 		
@@ -54,7 +53,7 @@ public class UserServiceImpl implements UserService {
 		UserEntity entity = mapper.map(user, UserEntity.class);
 
 		entity.setEncryptedPassword(bCrypt.encode(user.getPassword()));
-		entity.setUserId(utils.generateUserId(15));
+		entity.setUserId(utils.generateUserId(30));
 
 		UserEntity stored = repository.save(entity);
 
