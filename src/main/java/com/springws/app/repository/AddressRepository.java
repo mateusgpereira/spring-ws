@@ -11,4 +11,5 @@ import com.springws.app.entities.UserEntity;
 @Repository
 public interface AddressRepository  extends CrudRepository<AddressEntity, Long> {
 	List<AddressEntity> findAllByUserDetails(UserEntity userEntity);
+	AddressEntity findByAddressId(String addressId);
 }

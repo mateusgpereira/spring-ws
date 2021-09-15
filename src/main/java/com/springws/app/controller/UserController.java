@@ -8,7 +8,6 @@ import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -120,5 +119,17 @@ public class UserController {
 			returnValue = new ModelMapper().map(addressesDto, listType);
 		}
 		return returnValue;
+	}
+	
+	@GetMapping(path = "/{id}/addresses/{addressId}")
+	public AddressRest getAddressById(@PathVariable String id, @PathVariable String addressId){
+		
+		AddressDto addressDto = addressService.getAddressById(addressId);
+		
+		if (addressDto != null) {
+			return new ModelMapper().map(addressDto, AddressRest.class);
+		}
+		
+		return null;
 	}
 }

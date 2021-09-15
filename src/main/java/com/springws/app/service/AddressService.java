@@ -6,5 +6,6 @@ import com.springws.app.shared.dto.AddressDto;
 
 public interface AddressService {
 	List<AddressDto> getAddresses(String userId);
+	AddressDto getAddressById(String id);
 
 }
