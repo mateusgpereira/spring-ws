@@ -9,6 +9,8 @@ import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -122,14 +124,19 @@ public class UserController {
 	}
 	
 	@GetMapping(path = "/{id}/addresses/{addressId}")
-	public AddressRest getAddressById(@PathVariable String id, @PathVariable String addressId){
+	public AddressRest getUserAddress(@PathVariable String id, @PathVariable String addressId){
 		
 		AddressDto addressDto = addressService.getAddressById(addressId);
 		
-		if (addressDto != null) {
-			return new ModelMapper().map(addressDto, AddressRest.class);
+		if (addressDto == null) {
+			return null;
 		}
 		
-		return null;
+		AddressRest userAddress = new ModelMapper().map(addressDto, AddressRest.class);
+		
+		Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(id).withRel("user");
+		userAddress.add(userLink);
+		
+		return userAddress;
 	}
 }
