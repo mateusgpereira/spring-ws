@@ -134,8 +134,22 @@ public class UserController {
 		
 		AddressRest userAddress = new ModelMapper().map(addressDto, AddressRest.class);
 		
-		Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(id).withRel("user");
+		Link userLink = WebMvcLinkBuilder.linkTo(UserController.class)
+				.slash(id)
+				.withRel("user");
+		Link userAddressesLink = WebMvcLinkBuilder.linkTo(UserController.class)
+				.slash(id)
+				.slash("addresses")
+				.withRel("addresses");
+		Link selfLink = WebMvcLinkBuilder.linkTo(UserController.class)
+				.slash(id)
+				.slash("addresses")
+				.slash(addressId)
+				.withSelfRel();
+		
 		userAddress.add(userLink);
+		userAddress.add(userAddressesLink);
+		userAddress.add(selfLink);
 		
 		return userAddress;
 	}
