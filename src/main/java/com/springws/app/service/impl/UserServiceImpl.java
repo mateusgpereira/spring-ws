@@ -77,22 +77,18 @@ public class UserServiceImpl implements UserService {
 		if (user == null) {
 			throw new UsernameNotFoundException(email);
 		}
-		UserDto userDto = new UserDto();
-		BeanUtils.copyProperties(user, userDto);
-		return userDto;
+		return new ModelMapper().map(user, UserDto.class);
 	}
 
 	@Override
 	public UserDto getUserByUserId(String userId) throws UsernameNotFoundException {
-		UserDto userDto = new UserDto();
 		UserEntity user = repository.findByUserId(userId);
 
 		if (user == null) {
 			throw new UsernameNotFoundException(userId);
 		}
 
-		BeanUtils.copyProperties(user, userDto);
-		return userDto;
+		return new ModelMapper().map(user, UserDto.class);
 	}
 
 	@Override
@@ -107,10 +103,7 @@ public class UserServiceImpl implements UserService {
 		entity.setLastName(user.getLastName());
 
 		entity = repository.save(entity);
-		UserDto userDto = new UserDto();
-		BeanUtils.copyProperties(entity, userDto);
-
-		return userDto;
+		return new ModelMapper().map(user, UserDto.class);
 	}
 
 	@Override
@@ -131,10 +124,10 @@ public class UserServiceImpl implements UserService {
 		Pageable pageRequest = PageRequest.of(page, limit);
 		Page<UserEntity> userPage = repository.findAll(pageRequest);
 		List<UserEntity> users = userPage.getContent();
+		ModelMapper mapper = new ModelMapper();
 		
 		for (UserEntity entity : users) {
-			UserDto userDto = new UserDto();
-			BeanUtils.copyProperties(entity, userDto);
+			UserDto userDto = mapper.map(entity, UserDto.class); 
 			returnValue.add(userDto);
 		}
 		
