@@ -2,6 +2,7 @@ package com.springws.app.controller;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -9,6 +10,7 @@ import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
@@ -124,7 +126,7 @@ public class UserController {
 	}
 	
 	@GetMapping(path = "/{id}/addresses/{addressId}")
-	public AddressRest getUserAddress(@PathVariable String id, @PathVariable String addressId){
+	public EntityModel<AddressRest> getUserAddress(@PathVariable String id, @PathVariable String addressId){
 		
 		AddressDto addressDto = addressService.getAddressById(addressId);
 		
@@ -147,10 +149,6 @@ public class UserController {
 				.slash(addressId)
 				.withSelfRel();
 		
-		userAddress.add(userLink);
-		userAddress.add(userAddressesLink);
-		userAddress.add(selfLink);
-		
-		return userAddress;
+		return EntityModel.of(userAddress, Arrays.asList(userLink, userAddressesLink, selfLink));
 	}
 }
