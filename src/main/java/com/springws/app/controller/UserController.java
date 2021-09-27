@@ -139,14 +139,11 @@ public class UserController {
 		Link userLink = WebMvcLinkBuilder.linkTo(UserController.class)
 				.slash(id)
 				.withRel("user");
-		Link userAddressesLink = WebMvcLinkBuilder.linkTo(UserController.class)
-				.slash(id)
-				.slash("addresses")
+		Link userAddressesLink = WebMvcLinkBuilder.linkTo(
+				WebMvcLinkBuilder.methodOn(UserController.class).getAddresses(id))
 				.withRel("addresses");
-		Link selfLink = WebMvcLinkBuilder.linkTo(UserController.class)
-				.slash(id)
-				.slash("addresses")
-				.slash(addressId)
+		Link selfLink = WebMvcLinkBuilder.linkTo(
+				WebMvcLinkBuilder.methodOn(UserController.class).getUserAddress(id, addressId))
 				.withSelfRel();
 		
 		return EntityModel.of(userAddress, Arrays.asList(userLink, userAddressesLink, selfLink));
