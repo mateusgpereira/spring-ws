@@ -155,4 +155,18 @@ public class UserController {
 
 		return EntityModel.of(userAddress, Arrays.asList(userLink, userAddressesLink, selfLink));
 	}
+
+	@GetMapping(path = "/verification-email")
+	public OperationResponse verifyEmailToken(@RequestParam(value = "token") String token) {
+		OperationResponse operationResult = new OperationResponse();
+		operationResult.setName(OperationName.VERIFY_EMAIL.name());
+		
+		if (userService.verifyEmailToken(token)) {
+			operationResult.setStatus(OperationStatus.SUCCESS.name());
+		} else {
+			operationResult.setStatus(OperationStatus.ERROR.name());
+		}
+		
+		return operationResult;
+	}
 }

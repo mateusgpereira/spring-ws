@@ -41,19 +41,21 @@ public class UserServiceImpl implements UserService {
 		if (repository.findByEmail(user.getEmail()) != null) {
 			throw new RuntimeException("User already exists");
 		}
-		
-		for (int i = 0 ; i < user.getAddresses().size(); i++) {
+
+		for (int i = 0; i < user.getAddresses().size(); i++) {
 			AddressDto address = user.getAddresses().get(i);
 			address.setUserDetails(user);
 			address.setAddressId(utils.generateAddressId(30));
 			user.getAddresses().set(i, address);
 		}
-		
+
 		ModelMapper mapper = new ModelMapper();
 		UserEntity entity = mapper.map(user, UserEntity.class);
 
 		entity.setEncryptedPassword(bCrypt.encode(user.getPassword()));
 		entity.setUserId(utils.generateUserId(30));
+		entity.setEmailVerificationToken(Utils.generateEmailVerificationToken(entity.getUserId()));
+		entity.setEmailVerificationStatus(false);
 
 		UserEntity stored = repository.save(entity);
 
@@ -67,8 +69,8 @@ public class UserServiceImpl implements UserService {
 		if (user == null) {
 			throw new UsernameNotFoundException(email);
 		}
-
-		return new User(user.getEmail(), user.getEncryptedPassword(), new ArrayList<>());
+		return new User(user.getEmail(), user.getEncryptedPassword(), user.getEmailVerificationStatus(), true, true,
+				true, new ArrayList<>());
 	}
 
 	@Override
@@ -122,17 +124,32 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<UserDto> list(int page, int limit) {
 		List<UserDto> returnValue = new ArrayList<UserDto>();
-		
+
 		Pageable pageRequest = PageRequest.of(page, limit);
 		Page<UserEntity> userPage = repository.findAll(pageRequest);
 		List<UserEntity> users = userPage.getContent();
 		ModelMapper mapper = new ModelMapper();
-		
+
 		for (UserEntity entity : users) {
-			UserDto userDto = mapper.map(entity, UserDto.class); 
+			UserDto userDto = mapper.map(entity, UserDto.class);
 			returnValue.add(userDto);
 		}
-		
+
 		return returnValue;
+	}
+
+	@Override
+	public boolean verifyEmailToken(String token) {
+		UserEntity user = repository.findByEmailVerificationToken(token);
+		if (user != null) {
+			boolean isExpired = Utils.hasTokenExpired(token);
+			if (!isExpired) {
+				user.setEmailVerificationToken(null);
+				user.setEmailVerificationStatus(true);
+				repository.save(user);
+				return true;
+			}
+		}
+		return false;
 	}
 }
