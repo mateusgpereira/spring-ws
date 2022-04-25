@@ -3,6 +3,7 @@ package com.springws.app.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.springws.app.service.EmailVerificationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	BCryptPasswordEncoder bCrypt;
 
+	@Autowired
+	EmailVerificationService emailVerificationService;
+
 	public UserDto createUser(UserDto user) {
 
 		if (repository.findByEmail(user.getEmail()) != null) {
@@ -58,8 +62,11 @@ public class UserServiceImpl implements UserService {
 		entity.setEmailVerificationStatus(false);
 
 		UserEntity stored = repository.save(entity);
+		UserDto returnValue = mapper.map(stored, UserDto.class);
 
-		return mapper.map(stored, UserDto.class);
+		this.emailVerificationService.verifyEmail(returnValue);
+
+		return returnValue;
 	}
 
 	@Override
