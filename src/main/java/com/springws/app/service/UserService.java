@@ -2,6 +2,7 @@ package com.springws.app.service;
 
 import java.util.List;
 
+import com.springws.app.ui.model.request.PasswordResetRequestModel;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.springws.app.shared.dto.UserDto;
@@ -14,4 +15,5 @@ public interface UserService extends UserDetailsService{
 	void deleteUser(String userId);
 	List<UserDto> list(int page, int limit);
 	boolean verifyEmailToken(String token);
+	boolean requestPasswordReset(PasswordResetRequestModel requestModel);
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.springws.app.service.EmailVerificationService;
+import com.springws.app.ui.model.request.PasswordResetRequestModel;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,6 +158,11 @@ public class UserServiceImpl implements UserService {
 				return true;
 			}
 		}
+		return false;
+	}
+
+	@Override
+	public boolean requestPasswordReset(PasswordResetRequestModel requestModel) {
 		return false;
 	}
 }

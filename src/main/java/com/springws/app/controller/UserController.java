@@ -1,12 +1,13 @@
 package com.springws.app.controller;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.validation.Valid;
-
+import com.springws.app.exceptions.UserServiceException;
+import com.springws.app.service.AddressService;
+import com.springws.app.service.UserService;
+import com.springws.app.shared.dto.AddressDto;
+import com.springws.app.shared.dto.UserDto;
+import com.springws.app.ui.model.request.PasswordResetRequestModel;
+import com.springws.app.ui.model.request.UserDetailsRequestModel;
+import com.springws.app.ui.model.response.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,28 +16,13 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.springws.app.exceptions.UserServiceException;
-import com.springws.app.service.AddressService;
-import com.springws.app.service.UserService;
-import com.springws.app.shared.dto.AddressDto;
-import com.springws.app.shared.dto.UserDto;
-import com.springws.app.ui.model.request.UserDetailsRequestModel;
-import com.springws.app.ui.model.response.AddressRest;
-import com.springws.app.ui.model.response.ErrorMessages;
-import com.springws.app.ui.model.response.OperationName;
-import com.springws.app.ui.model.response.OperationResponse;
-import com.springws.app.ui.model.response.OperationStatus;
-import com.springws.app.ui.model.response.UserRest;
+import javax.validation.Valid;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequestMapping("users")
@@ -168,5 +154,15 @@ public class UserController {
 		}
 		
 		return operationResult;
+	}
+
+	@PostMapping("/password-reset-request")
+	public OperationResponse requestReset(@RequestBody PasswordResetRequestModel requestModel) {
+		OperationResponse operationResponse = new OperationResponse();
+
+		boolean operationResult = userService.requestPasswordReset(requestModel);
+		operationResponse.setName(OperationName.REQUEST_PASSWORD_RESET.name());
+		operationResponse.setStatus(operationResult ? OperationStatus.SUCCESS.name() : OperationStatus.ERROR.name());
+		return operationResponse;
 	}
 }
