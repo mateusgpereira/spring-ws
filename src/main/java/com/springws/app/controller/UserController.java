@@ -160,7 +160,7 @@ public class UserController {
 	public OperationResponse requestReset(@RequestBody PasswordResetRequestModel requestModel) {
 		OperationResponse operationResponse = new OperationResponse();
 
-		boolean operationResult = userService.requestPasswordReset(requestModel);
+		boolean operationResult = userService.requestPasswordReset(requestModel.getEmail());
 		operationResponse.setName(OperationName.REQUEST_PASSWORD_RESET.name());
 		operationResponse.setStatus(operationResult ? OperationStatus.SUCCESS.name() : OperationStatus.ERROR.name());
 		return operationResponse;

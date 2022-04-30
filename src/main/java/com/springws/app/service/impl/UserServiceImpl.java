@@ -3,6 +3,8 @@ package com.springws.app.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.springws.app.entities.PasswordResetTokenEntity;
+import com.springws.app.repository.PasswordResetTokenRepository;
 import com.springws.app.service.EmailVerificationService;
 import com.springws.app.ui.model.request.PasswordResetRequestModel;
 import org.modelmapper.ModelMapper;
@@ -29,140 +31,155 @@ import com.springws.app.ui.model.response.ErrorMessages;
 @Service
 public class UserServiceImpl implements UserService {
 
-	@Autowired
-	UserRepository repository;
+    @Autowired
+    UserRepository repository;
 
-	@Autowired
-	Utils utils;
+    @Autowired
+    Utils utils;
 
-	@Autowired
-	BCryptPasswordEncoder bCrypt;
+    @Autowired
+    BCryptPasswordEncoder bCrypt;
 
-	@Autowired
-	EmailVerificationService emailVerificationService;
+    @Autowired
+    EmailVerificationService emailVerificationService;
 
-	public UserDto createUser(UserDto user) {
+    @Autowired
+    PasswordResetTokenRepository passwordResetTokenRepository;
 
-		if (repository.findByEmail(user.getEmail()) != null) {
-			throw new RuntimeException("User already exists");
-		}
+    public UserDto createUser(UserDto user) {
 
-		for (int i = 0; i < user.getAddresses().size(); i++) {
-			AddressDto address = user.getAddresses().get(i);
-			address.setUserDetails(user);
-			address.setAddressId(utils.generateAddressId(30));
-			user.getAddresses().set(i, address);
-		}
+        if (repository.findByEmail(user.getEmail()) != null) {
+            throw new RuntimeException("User already exists");
+        }
 
-		ModelMapper mapper = new ModelMapper();
-		UserEntity entity = mapper.map(user, UserEntity.class);
+        for (int i = 0; i < user.getAddresses().size(); i++) {
+            AddressDto address = user.getAddresses().get(i);
+            address.setUserDetails(user);
+            address.setAddressId(utils.generateAddressId(30));
+            user.getAddresses().set(i, address);
+        }
 
-		entity.setEncryptedPassword(bCrypt.encode(user.getPassword()));
-		entity.setUserId(utils.generateUserId(30));
-		entity.setEmailVerificationToken(Utils.generateEmailVerificationToken(entity.getUserId()));
-		entity.setEmailVerificationStatus(false);
+        ModelMapper mapper = new ModelMapper();
+        UserEntity entity = mapper.map(user, UserEntity.class);
 
-		UserEntity stored = repository.save(entity);
-		UserDto returnValue = mapper.map(stored, UserDto.class);
+        entity.setEncryptedPassword(bCrypt.encode(user.getPassword()));
+        entity.setUserId(utils.generateUserId(30));
+        entity.setEmailVerificationToken(Utils.generateEmailVerificationToken(entity.getUserId()));
+        entity.setEmailVerificationStatus(false);
 
-		this.emailVerificationService.verifyEmail(returnValue);
+        UserEntity stored = repository.save(entity);
+        UserDto returnValue = mapper.map(stored, UserDto.class);
 
-		return returnValue;
-	}
+        this.emailVerificationService.verifyEmail(returnValue);
 
-	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		UserEntity user = repository.findByEmail(email);
+        return returnValue;
+    }
 
-		if (user == null) {
-			throw new UsernameNotFoundException(email);
-		}
-		return new User(user.getEmail(), user.getEncryptedPassword(), user.getEmailVerificationStatus(), true, true,
-				true, new ArrayList<>());
-	}
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserEntity user = repository.findByEmail(email);
 
-	@Override
-	public UserDto getUser(String email) throws UsernameNotFoundException {
-		UserEntity user = repository.findByEmail(email);
-		if (user == null) {
-			throw new UsernameNotFoundException(email);
-		}
-		UserDto userDto = new UserDto();
-		BeanUtils.copyProperties(user, userDto);
-		return userDto;
-	}
+        if (user == null) {
+            throw new UsernameNotFoundException(email);
+        }
+        return new User(user.getEmail(), user.getEncryptedPassword(), user.getEmailVerificationStatus(), true, true,
+                true, new ArrayList<>());
+    }
 
-	@Override
-	public UserDto getUserByUserId(String userId) throws UsernameNotFoundException {
-		UserEntity user = repository.findByUserId(userId);
+    @Override
+    public UserDto getUser(String email) throws UsernameNotFoundException {
+        UserEntity user = repository.findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException(email);
+        }
+        UserDto userDto = new UserDto();
+        BeanUtils.copyProperties(user, userDto);
+        return userDto;
+    }
 
-		if (user == null) {
-			throw new UsernameNotFoundException(userId);
-		}
+    @Override
+    public UserDto getUserByUserId(String userId) throws UsernameNotFoundException {
+        UserEntity user = repository.findByUserId(userId);
 
-		return new ModelMapper().map(user, UserDto.class);
-	}
+        if (user == null) {
+            throw new UsernameNotFoundException(userId);
+        }
 
-	@Override
-	public UserDto updateUser(String userId, UserDto user) {
-		UserEntity entity = repository.findByUserId(userId);
+        return new ModelMapper().map(user, UserDto.class);
+    }
 
-		if (entity == null) {
-			throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
-		}
+    @Override
+    public UserDto updateUser(String userId, UserDto user) {
+        UserEntity entity = repository.findByUserId(userId);
 
-		entity.setFirstName(user.getFirstName());
-		entity.setLastName(user.getLastName());
+        if (entity == null) {
+            throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        }
 
-		entity = repository.save(entity);
-		return new ModelMapper().map(user, UserDto.class);
-	}
+        entity.setFirstName(user.getFirstName());
+        entity.setLastName(user.getLastName());
 
-	@Override
-	public void deleteUser(String userId) {
-		UserEntity entity = repository.findByUserId(userId);
+        entity = repository.save(entity);
+        return new ModelMapper().map(user, UserDto.class);
+    }
 
-		if (entity == null) {
-			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
-		}
+    @Override
+    public void deleteUser(String userId) {
+        UserEntity entity = repository.findByUserId(userId);
 
-		repository.delete(entity);
-	}
+        if (entity == null) {
+            throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        }
 
-	@Override
-	public List<UserDto> list(int page, int limit) {
-		List<UserDto> returnValue = new ArrayList<UserDto>();
+        repository.delete(entity);
+    }
 
-		Pageable pageRequest = PageRequest.of(page, limit);
-		Page<UserEntity> userPage = repository.findAll(pageRequest);
-		List<UserEntity> users = userPage.getContent();
-		ModelMapper mapper = new ModelMapper();
+    @Override
+    public List<UserDto> list(int page, int limit) {
+        List<UserDto> returnValue = new ArrayList<UserDto>();
 
-		for (UserEntity entity : users) {
-			UserDto userDto = mapper.map(entity, UserDto.class);
-			returnValue.add(userDto);
-		}
+        Pageable pageRequest = PageRequest.of(page, limit);
+        Page<UserEntity> userPage = repository.findAll(pageRequest);
+        List<UserEntity> users = userPage.getContent();
+        ModelMapper mapper = new ModelMapper();
 
-		return returnValue;
-	}
+        for (UserEntity entity : users) {
+            UserDto userDto = mapper.map(entity, UserDto.class);
+            returnValue.add(userDto);
+        }
 
-	@Override
-	public boolean verifyEmailToken(String token) {
-		UserEntity user = repository.findByEmailVerificationToken(token);
-		if (user != null) {
-			boolean isExpired = Utils.hasTokenExpired(token);
-			if (!isExpired) {
-				user.setEmailVerificationToken(null);
-				user.setEmailVerificationStatus(true);
-				repository.save(user);
-				return true;
-			}
-		}
-		return false;
-	}
+        return returnValue;
+    }
 
-	@Override
-	public boolean requestPasswordReset(PasswordResetRequestModel requestModel) {
-		return false;
-	}
+    @Override
+    public boolean verifyEmailToken(String token) {
+        UserEntity user = repository.findByEmailVerificationToken(token);
+        if (user != null) {
+            boolean isExpired = Utils.hasTokenExpired(token);
+            if (!isExpired) {
+                user.setEmailVerificationToken(null);
+                user.setEmailVerificationStatus(true);
+                repository.save(user);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean requestPasswordReset(String email) {
+        UserEntity user = repository.findByEmail(email);
+
+        if (user == null) {
+            return false;
+        }
+
+        String token = Utils.generatePasswordResetToken(user.getUserId());
+        PasswordResetTokenEntity passwordResetToken = new PasswordResetTokenEntity();
+        passwordResetToken.setToken(token);
+        passwordResetToken.setUserDetails(user);
+        passwordResetTokenRepository.save(passwordResetToken);
+
+        return emailVerificationService.sendPasswordResetRequest(user.getFirstName(), user.getEmail(), token);
+    }
 }

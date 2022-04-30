@@ -46,9 +46,17 @@ public class Utils {
 	}
 	
 	public static String generateEmailVerificationToken(String userId) {
+		return generateToken(userId, SecurityConstants.EXPIRATION_TIME);
+	}
+
+	public static String generatePasswordResetToken(String userId) {
+		return generateToken(userId, SecurityConstants.EXPIRATION_TIME_PASSWORD_RESET);
+	}
+
+	private static String generateToken(String userId, long expirationTimeInMilis) {
 		return Jwts.builder()
 				.setSubject(userId)
-				.setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
+				.setExpiration(new Date(System.currentTimeMillis() + expirationTimeInMilis))
 				.signWith(SignatureAlgorithm.HS512, SecurityConstants.TOKEN_SECRET)
 				.compact();
 	}
