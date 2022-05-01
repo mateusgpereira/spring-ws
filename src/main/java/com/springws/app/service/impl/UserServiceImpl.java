@@ -182,4 +182,29 @@ public class UserServiceImpl implements UserService {
 
         return emailVerificationService.sendPasswordResetRequest(user.getFirstName(), user.getEmail(), token);
     }
+
+    @Override
+    public boolean resetPassword(String password, String token) {
+        if (Utils.hasTokenExpired(token)) {
+            return false;
+        }
+
+        PasswordResetTokenEntity passwordResetToken = this.passwordResetTokenRepository.findByToken(token);
+        if (passwordResetToken == null) {
+            return  false;
+        }
+
+        String encodedPassword = bCrypt.encode(password);
+        UserEntity user = passwordResetToken.getUserDetails();
+        user.setEncryptedPassword(encodedPassword);
+        UserEntity updatedUser = repository.save(user);
+
+        passwordResetTokenRepository.delete(passwordResetToken);
+
+        if (updatedUser != null && updatedUser.getEncryptedPassword().equalsIgnoreCase(encodedPassword)) {
+            return true;
+        }
+
+        return false;
+    }
 }

@@ -12,6 +12,7 @@ public class SecurityConstants {
 	public static final String VERIFICATION_EMAIL_URL = "/users/verification-email";
 	public static final String SIGN_IN_URL = "/users/login";
 	public static final String RESET_PASSWORD_REQUEST = "/users/password-reset-request";
+	public static final String PASSWORD_RESET = "/users/password-reset";
 	public static final String TOKEN_SECRET = getTokenSecret();
 	
 	private static String getTokenSecret() {

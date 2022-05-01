@@ -5,6 +5,7 @@ import com.springws.app.service.AddressService;
 import com.springws.app.service.UserService;
 import com.springws.app.shared.dto.AddressDto;
 import com.springws.app.shared.dto.UserDto;
+import com.springws.app.ui.model.request.PasswordResetModel;
 import com.springws.app.ui.model.request.PasswordResetRequestModel;
 import com.springws.app.ui.model.request.UserDetailsRequestModel;
 import com.springws.app.ui.model.response.*;
@@ -164,5 +165,21 @@ public class UserController {
 		operationResponse.setName(OperationName.REQUEST_PASSWORD_RESET.name());
 		operationResponse.setStatus(operationResult ? OperationStatus.SUCCESS.name() : OperationStatus.ERROR.name());
 		return operationResponse;
+	}
+
+	@PostMapping("/password-reset")
+	public OperationResponse resetPassword(@RequestBody PasswordResetModel passwordResetModel) {
+		OperationResponse response = new OperationResponse();
+
+		boolean result = userService.resetPassword(passwordResetModel.getPassword(), passwordResetModel.getToken());
+		response.setName(OperationName.PASSWORD_RESET.name());
+
+		if (result) {
+			response.setStatus(OperationStatus.SUCCESS.name());
+		} else {
+			response.setStatus(OperationStatus.ERROR.name());
+		}
+
+		return response;
 	}
 }
