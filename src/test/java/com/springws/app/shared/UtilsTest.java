@@ -31,6 +31,18 @@ class UtilsTest {
     }
 
     @Test
-    void hasTokenExpired() {
+    void hasTokenNotExpired() {
+        String token = utils.generateEmailVerificationToken("df98f7a9q69");
+        assertNotNull(token);
+
+        boolean hasTokenExpired = Utils.hasTokenExpired(token);
+        assertFalse(hasTokenExpired);
+    }
+
+    @Test
+    void shouldTokenBeExpired() {
+        String expiredToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXRldXNnb25jYWx2ZXNwZXJlaXJhQGdtYWlsLmNvbSIsImV4cCI6MTY1MjAxOTI2Nn0.a3Xe-1fSa5tSBgB_wXRAxD__z0Zw5RUyzwqLSk-jlYlstz7BOw4xvb8306vg13xCJH20kd6i3o4hQtowH5bRKw";
+        boolean hasTokenExpired = Utils.hasTokenExpired(expiredToken);
+        assertTrue(hasTokenExpired);
     }
 }

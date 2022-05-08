@@ -3,6 +3,7 @@ package com.springws.app.shared;
 import java.security.SecureRandom;
 import java.util.Date;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.stereotype.Component;
 
 import com.springws.app.security.SecurityConstants;
@@ -37,12 +38,18 @@ public class Utils {
 	}
 	
 	public static boolean hasTokenExpired(String token) {
-		Claims claims = Jwts.parser().setSigningKey(SecurityConstants.TOKEN_SECRET).parseClaimsJws(token).getBody();
-		
-		Date tokenExpiration = claims.getExpiration();
-		Date today = new Date();
-		
-		return tokenExpiration.before(today);
+
+		try {
+			Claims claims = Jwts.parser().setSigningKey(SecurityConstants.TOKEN_SECRET).parseClaimsJws(token).getBody();
+
+			Date tokenExpiration = claims.getExpiration();
+			Date today = new Date();
+
+			return tokenExpiration.before(today);
+		} catch (ExpiredJwtException e) {
+			return true;
+		}
+
 	}
 	
 	public String generateEmailVerificationToken(String userId) {
