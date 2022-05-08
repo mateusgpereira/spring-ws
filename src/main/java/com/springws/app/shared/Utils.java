@@ -45,15 +45,15 @@ public class Utils {
 		return tokenExpiration.before(today);
 	}
 	
-	public static String generateEmailVerificationToken(String userId) {
+	public String generateEmailVerificationToken(String userId) {
 		return generateToken(userId, SecurityConstants.EXPIRATION_TIME);
 	}
 
-	public static String generatePasswordResetToken(String userId) {
+	public String generatePasswordResetToken(String userId) {
 		return generateToken(userId, SecurityConstants.EXPIRATION_TIME_PASSWORD_RESET);
 	}
 
-	private static String generateToken(String userId, long expirationTimeInMilis) {
+	private String generateToken(String userId, long expirationTimeInMilis) {
 		return Jwts.builder()
 				.setSubject(userId)
 				.setExpiration(new Date(System.currentTimeMillis() + expirationTimeInMilis))

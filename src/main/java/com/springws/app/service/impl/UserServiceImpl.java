@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
 
         entity.setEncryptedPassword(bCrypt.encode(user.getPassword()));
         entity.setUserId(utils.generateUserId(30));
-        entity.setEmailVerificationToken(Utils.generateEmailVerificationToken(entity.getUserId()));
+        entity.setEmailVerificationToken(utils.generateEmailVerificationToken(entity.getUserId()));
         entity.setEmailVerificationStatus(false);
 
         UserEntity stored = repository.save(entity);
@@ -174,7 +174,7 @@ public class UserServiceImpl implements UserService {
             return false;
         }
 
-        String token = Utils.generatePasswordResetToken(user.getUserId());
+        String token = utils.generatePasswordResetToken(user.getUserId());
         PasswordResetTokenEntity passwordResetToken = new PasswordResetTokenEntity();
         passwordResetToken.setToken(token);
         passwordResetToken.setUserDetails(user);
@@ -185,7 +185,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean resetPassword(String password, String token) {
-        if (Utils.hasTokenExpired(token)) {
+        if (utils.hasTokenExpired(token)) {
             return false;
         }
 
