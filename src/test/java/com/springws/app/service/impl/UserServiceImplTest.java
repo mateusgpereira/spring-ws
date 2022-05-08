@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -99,6 +100,7 @@ class UserServiceImplTest {
         when(utils.generateUserId(anyInt())).thenReturn(userId);
         when(bCryptPasswordEncoder.encode(anyString())).thenReturn(encryptedPassword);
         when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
+        Mockito.doNothing().when(emailVerificationService).verifyEmail(any(UserDto.class));
 
         UserDto userDto = UserDto.builder()
                 .addresses(this.getAddressesDto())
@@ -115,6 +117,14 @@ class UserServiceImplTest {
         verify(utils, times(2)).generateAddressId(30);
         verify(bCryptPasswordEncoder, times(1)).encode("1234567");
         verify(userRepository, times(1)).save(any(UserEntity.class));
+    }
+
+    @Test
+    final void shouldThrowAnExceptionWhenCreateUser() {
+        when(userRepository.findByEmail(anyString())).thenReturn(userEntity);
+        assertThrows(RuntimeException.class, () -> {
+            userService.createUser(new UserDto());
+        });
     }
 
     private List<AddressDto> getAddressesDto() {
@@ -142,6 +152,5 @@ class UserServiceImplTest {
         Type listType = new TypeToken<List<AddressEntity>>() {}.getType();
         return new ModelMapper().map(addresses, listType);
     }
-
 
 }
