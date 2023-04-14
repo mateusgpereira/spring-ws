@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AmazonSES implements EmailVerificationService {
 
-    final String FROM = "mateus.pereira@firedev.com.br";
+    final String FROM = "sudomateuspereira@gmail.com";
 
     final String SUBJECT = "One last step to complete your registration with PhotoApp";
 

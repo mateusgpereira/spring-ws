@@ -35,41 +35,34 @@ public class UserController {
 	@Autowired
 	private AddressService addressService;
 
+	@Autowired
+	private ModelMapper mapper;
+
 	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public UserRest getUsers(@PathVariable String id) {
 		UserDto userDto = userService.getUserByUserId(id);
-		ModelMapper mapper = new ModelMapper();
-		UserRest user = mapper.map(userDto, UserRest.class);
-		return user;
+
+		return mapper.map(userDto, UserRest.class);
 	}
 
 	@PostMapping
 	public UserRest createUser(@Valid @RequestBody UserDetailsRequestModel userDetails) throws Exception {
-
 		if (userDetails.getFirstName().isEmpty()) {
 			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELDS.getErrorMessage());
 		}
 
-		UserRest returnValue = new UserRest();
-
-		ModelMapper mapper = new ModelMapper();
 		UserDto userDto = mapper.map(userDetails, UserDto.class);
 
-		UserDto createdUser = userService.createUser(userDto);
-		returnValue = mapper.map(createdUser, UserRest.class);
-
-		return returnValue;
+		return mapper.map(userService.createUser(userDto), UserRest.class);
 	}
 
 	@PutMapping(path = "/{id}")
 	public UserRest updateUser(@PathVariable String id, @RequestBody UserDetailsRequestModel userDetails) {
-		ModelMapper modelMapper = new ModelMapper();
-		UserDto userDto = modelMapper.map(userDetails, UserDto.class);
+		UserDto userDto = mapper.map(userDetails, UserDto.class);
 
 		userDto = userService.updateUser(id, userDto);
 
-		UserRest user = modelMapper.map(userDto, UserRest.class);
-		return user;
+		return mapper.map(userDto, UserRest.class);
 	}
 
 	@DeleteMapping(path = "/{id}")
@@ -89,7 +82,6 @@ public class UserController {
 		List<UserRest> returnValue = new ArrayList<UserRest>();
 
 		List<UserDto> users = userService.list(page, limit);
-		ModelMapper mapper = new ModelMapper();
 
 		for (UserDto user : users) {
 			UserRest userRest = mapper.map(user, UserRest.class);
